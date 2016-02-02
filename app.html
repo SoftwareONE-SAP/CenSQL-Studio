@@ -1,0 +1,49 @@
+<html>
+	<head>
+		<title>CenSQL Studio</title>
+		<link rel="stylesheet" href="./css/vendor/bootstrap.min.css">
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+		<link rel="stylesheet" href="./css/vendor/simple-sidebar.css">
+		<link rel="stylesheet" href="./css/app.css">
+		<link rel="stylesheet" href="css/vendor/codemirror.css">
+		<script src="js/vendor/codemirror.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.7.0/mode/sql/sql.min.js"></script>
+		<script src="./js/vendor/jquery-2.1.4.min.js"></script>
+		<script src="./js/vendor/bootstrap.min.js"></script>
+		<script src="./js/vendor/highcharts.min.js"></script>
+		<script src="./js/ui/side-menu.js"></script>
+		<script src="./js/ui/page-selector.js"></script>
+		<script src="./js/app.js"></script>
+		<script src="js/panels/dashboard.js"></script>
+		<script src="js/panels/console.js"></script>
+	</head>
+
+	<body>
+
+		<div id="wrapper">
+
+	        <!-- Sidebar -->
+	        <div id="sidebar-wrapper">
+	            <ul class="sidebar-nav">
+	                <li class="sidebar-brand">
+	                    <a class="page-selector" page="dashboard">
+	                        CenSQL Studio
+	                    </a>
+	                </li>
+
+	                <li>
+	                    <a class="page-selector" page="dashboard">Dashboard</a>
+	                </li>
+	                <li>
+	                    <a class="page-selector" page="console">SQL Console</a>
+	                </li>
+	            </ul>
+	        </div>
+
+	        <!-- Main container -->
+	        <div id="page-main-container"></div>
+
+	    </div>
+
+	</body>
+</html>

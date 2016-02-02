@@ -1,0 +1,29 @@
+{
+  "name": "censql-studio",
+  "version": "1.0.0",
+  "description": "A GUI application for SAP HANA",
+  "main": "app.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "William Overton <woverton@centiq.co.uk>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Centiq/CenSQL-Studio.git"
+  },
+  "window": {
+    "frame": true,
+    "position": "center",
+    "width": 1200,
+    "height": 800,
+    "resizable": true,
+    "transparent": false,
+    "toolbar": true
+  },
+  "dependencies": {
+    "async": "^1.4.2",
+    "hdb": "^0.5.2",
+    "moment": "^2.11.0"
+  }
+}

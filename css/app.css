@@ -1,0 +1,26 @@
+
+#menu-top-bar{
+	margin-bottom: -20px;
+}
+
+#menu-top-bar button{
+	border-radius: 0px !important;
+}
+
+.noBorderRadius{
+	border-radius: 0px !important;
+}
+
+.CodeMirror{
+	height: auto !important;
+}
+
+#console-editor-parent{
+	margin-top: -21px;
+	height: 200px;
+	background-color: #ff00ff;
+}
+
+#console-error-details{
+	background-color: #ffdddd;
+}

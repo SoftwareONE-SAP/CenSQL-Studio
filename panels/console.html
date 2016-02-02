@@ -1,0 +1,98 @@
+<div id="menu-top-bar">
+    <div class="btn-group" role="group" aria-label="...">
+    	<button class="btn btn-info" id="menu-toggle"><i class="fa fa-bars"></i></button>
+    	<button class="btn btn-danger" id="console-run"><i class="fa fa-bolt"></i></button>
+    	<!-- <button class="btn" id="console-refresh"><i class="fa fa-refresh"></i></button> -->
+    	<button class="btn" id="console-expand"><i class="fa fa-long-arrow-down"></i></button>
+    	<button class="btn" id="console-minimise" style="display:none"><i class="fa fa-long-arrow-up"></i></button>
+	</div>
+</div>
+
+<hr>
+
+<div id="console-editor-parent">
+	<textarea id="console-textarea">SELECT
+  HOST,
+  LPAD(PORT, 5) PORT,
+  FILE_NAME,
+  FILE_TYPE,
+  LPAD(TO_DECIMAL(TOTAL_SIZE_GB, 10, 2), 13) TOTAL_SIZE_GB,
+  LPAD(TO_DECIMAL(USED_SIZE_GB, 10, 2), 12)  USED_SIZE_GB,
+  LPAD(TO_DECIMAL(TOTAL_SIZE_GB - USED_SIZE_GB, 10, 2), 14) UNUSED_SIZE_GB,
+  LPAD(TO_DECIMAL(MAP(TOTAL_SIZE_GB, 0, 0, ( 1 - USED_SIZE_GB / TOTAL_SIZE_GB ) * 100), 10, 2), 17) FRAGMENTATION_PCT
+FROM
+( SELECT
+    CASE WHEN BI.AGGREGATE_BY = 'NONE' OR INSTR(BI.AGGREGATE_BY, 'HOST') != 0 THEN F.HOST          ELSE MAP(BI.HOST,      '%', 'any', BI.HOST)      END HOST,
+    CASE WHEN BI.AGGREGATE_BY = 'NONE' OR INSTR(BI.AGGREGATE_BY, 'PORT') != 0 THEN TO_CHAR(F.PORT) ELSE MAP(BI.PORT,      '%', 'any', BI.PORT)      END PORT,
+    CASE WHEN BI.AGGREGATE_BY = 'NONE' OR INSTR(BI.AGGREGATE_BY, 'FILE') != 0 THEN F.FILE_NAME     ELSE MAP(BI.FILE_NAME, '%', 'any', BI.FILE_NAME) END FILE_NAME,
+    CASE WHEN BI.AGGREGATE_BY = 'NONE' OR INSTR(BI.AGGREGATE_BY, 'TYPE') != 0 THEN F.FILE_TYPE     ELSE MAP(BI.FILE_TYPE, '%', 'any', BI.FILE_NAME) END FILE_TYPE,
+    SUM(F.USED_SIZE) / 1024 / 1024 / 1024 USED_SIZE_GB,
+    SUM(F.TOTAL_SIZE) / 1024 / 1024 / 1024 TOTAL_SIZE_GB,
+    BI.MIN_UNUSED_SIZE_GB,
+    BI.MIN_FRAGMENTATION_PCT
+  FROM
+  ( SELECT                    /* Modification section */
+      '%' HOST,
+      '%' PORT,
+      '%' FILE_NAME,
+      'DATA' FILE_TYPE,            /* DATA, LOG */
+      -1  MIN_UNUSED_SIZE_GB,
+      -1  MIN_FRAGMENTATION_PCT,
+      'NONE' AGGREGATE_BY          /* HOST, PORT, FILE, TYPE and comma-separated combinations, NONE for no aggregation */
+    FROM
+      DUMMY
+  ) BI,
+    M_VOLUME_FILES F
+  WHERE
+    F.HOST LIKE BI.HOST AND
+    TO_CHAR(F.PORT) LIKE BI.PORT AND
+    F.FILE_NAME LIKE BI.FILE_NAME AND
+    F.FILE_TYPE LIKE BI.FILE_TYPE
+  GROUP BY
+    CASE WHEN BI.AGGREGATE_BY = 'NONE' OR INSTR(BI.AGGREGATE_BY, 'HOST') != 0 THEN F.HOST          ELSE MAP(BI.HOST,      '%', 'any', BI.HOST)      END,
+    CASE WHEN BI.AGGREGATE_BY = 'NONE' OR INSTR(BI.AGGREGATE_BY, 'PORT') != 0 THEN TO_CHAR(F.PORT) ELSE MAP(BI.PORT,      '%', 'any', BI.PORT)      END,
+    CASE WHEN BI.AGGREGATE_BY = 'NONE' OR INSTR(BI.AGGREGATE_BY, 'FILE') != 0 THEN F.FILE_NAME     ELSE MAP(BI.FILE_NAME, '%', 'any', BI.FILE_NAME) END,
+    CASE WHEN BI.AGGREGATE_BY = 'NONE' OR INSTR(BI.AGGREGATE_BY, 'TYPE') != 0 THEN F.FILE_TYPE     ELSE MAP(BI.FILE_TYPE, '%', 'any', BI.FILE_NAME) END,
+    BI.MIN_UNUSED_SIZE_GB,
+    BI.MIN_FRAGMENTATION_PCT
+)
+WHERE
+  ( MIN_UNUSED_SIZE_GB = -1 OR TOTAL_SIZE_GB - USED_SIZE_GB >= MIN_UNUSED_SIZE_GB) AND
+  ( MIN_FRAGMENTATION_PCT = -1 OR MAP(TOTAL_SIZE_GB, 0, 0, ( 1 - USED_SIZE_GB / TOTAL_SIZE_GB ) * 100) >= MIN_FRAGMENTATION_PCT )
+ORDER BY
+  HOST,
+  PORT,
+  FILE_NAME,
+  FILE_TYPE
+</textarea>
+</div>
+
+
+
+<div class="panel panel-default noBorderRadius" id="console-table">
+
+	<div class="panel-heading">
+		<strong>Results</strong>
+	</div>
+
+	<table class="panel-body table table-bordered">
+		<thead>
+			<tr id="console-results-columns">
+			</tr>
+		</thead>
+		<tbody id="console-query-results"></tbody>
+	</table>
+
+
+</div>
+
+
+<div class="panel panel-default noBorderRadius" id="console-error" style="display:none">
+
+	<div class="panel-heading">
+		<strong>Error</strong>
+	</div>
+
+	<div class="panel-body" id="console-error-details"></div>
+
+</div>
